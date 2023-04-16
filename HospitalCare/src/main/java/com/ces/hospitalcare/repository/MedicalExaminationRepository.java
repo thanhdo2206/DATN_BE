@@ -43,4 +43,6 @@ public interface MedicalExaminationRepository extends
       nativeQuery = true)
   List<MedicalExaminationEntity> filterMedicalExaminationByCategory(
       @Param("categories") String[] categories);
+
+  MedicalExaminationEntity getByDoctorId(Long doctorId);
 }

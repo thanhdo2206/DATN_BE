@@ -9,10 +9,10 @@ import com.ces.hospitalcare.http.response.LoginResponse;
 import com.ces.hospitalcare.http.response.RegisterResponse;
 import com.ces.hospitalcare.http.response.UserResponse;
 import com.ces.hospitalcare.repository.UserRepository;
+import com.ces.hospitalcare.security.config.SecurityContact;
 import com.ces.hospitalcare.security.service.JwtService;
 import com.ces.hospitalcare.service.IAuthenticationService;
 import com.ces.hospitalcare.util.ExceptionMessage;
-import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +67,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     var jwtToken = jwtService.generateToken(user);
     var cookie = ResponseCookie.from("token", jwtToken)
         .httpOnly(true)
-        .maxAge(Duration.ofHours(1))
+        .maxAge(SecurityContact.EXPIRATION_TIME)
         .path("/")
 //        .sameSite("None")
 //        .secure(true)

@@ -1,6 +1,7 @@
 package com.ces.hospitalcare.repository;
 import com.ces.hospitalcare.entity.AppointmentEntity;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,4 +18,8 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
   List<AppointmentEntity> getAllByDoctorIdAndPatientId(Long doctorId, Long patientId);
 
   AppointmentEntity getByIdAndDoctorId(Long id, Long doctorId);
+
+  List<AppointmentEntity> findAllByStatusAndDoctorId(int status, Long doctorId, Pageable pageable);
+
+  int countByStatusAndDoctorId(int status, Long doctorId);
 }

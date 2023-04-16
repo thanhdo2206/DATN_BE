@@ -15,4 +15,6 @@ public class TimeSlotResponse {
   private TimeSlotDTO timeSlotDTO;
 
   private Long doctorId;
+
+  private Long appointmentId;
 }

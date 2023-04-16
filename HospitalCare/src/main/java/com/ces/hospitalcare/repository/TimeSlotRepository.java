@@ -12,4 +12,6 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlotEntity, Long> 
 
   @Query(value = "SELECT * FROM time_slots WHERE doctor_id = :doctorId and YEARWEEK(start_time) = YEARWEEK(NOW());", nativeQuery = true)
   List<TimeSlotEntity> getAllTimeSlotsOfCurrentWeek(@Param("doctorId") long doctorId);
+
+  TimeSlotEntity getByIdAndDoctorId(Long id, Long doctorId);
 }

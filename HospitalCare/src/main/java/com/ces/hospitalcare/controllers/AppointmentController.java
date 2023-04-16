@@ -1,15 +1,20 @@
 package com.ces.hospitalcare.controllers;
 import com.ces.hospitalcare.dto.AppointmentDTO;
 import com.ces.hospitalcare.dto.UserDTO;
+import com.ces.hospitalcare.http.request.AppointmentRequest;
+import com.ces.hospitalcare.http.response.AppointmentPageableResponse;
 import com.ces.hospitalcare.http.response.UserResponse;
 import com.ces.hospitalcare.service.IAppointmentService;
 import com.ces.hospitalcare.service.IUserService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,9 +29,28 @@ public class AppointmentController {
   @Autowired
   private IUserService userService;
 
+  @GetMapping(path = "/doctor/pageable")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DOCTOR')")
+  public AppointmentPageableResponse getAllAppointmentOfDoctorPageableByStatusAndDoctorId(
+      @RequestParam("pageIndex") int pageIndex, @RequestParam("limit") int limit,
+      @RequestParam("appointmentStatus") int appointmentStatus) {
+
+    UserResponse userResponse = userService.findEmailByToken();
+    UserDTO userDTO = userResponse.getUser();
+
+    Pageable pageable = PageRequest.of(pageIndex - 1, limit);
+    int totalPage = (int) Math.ceil(
+        (double) (appointmentService.countByStatusAndDoctorId(appointmentStatus, userDTO.getId()))
+            / limit);
+    List<AppointmentDTO> listAppointmentDTO = appointmentService.getAllAppointmentOfDoctorPageableByStatusAndDoctorId(
+        appointmentStatus, userDTO.getId(), pageable);
+    return AppointmentPageableResponse.builder().pageIndex(pageIndex).totalPage(totalPage)
+        .listAppointmentResult(listAppointmentDTO).build();
+  }
+
   @GetMapping(path = "/doctor")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DOCTOR')")
-  public List<AppointmentDTO> getAllAppointmentOfDoctor() {
+  public List<AppointmentDTO> getAllAppointmentOfDoctorCurrentWeek() {
     UserResponse userResponse = userService.findEmailByToken();
     UserDTO userDTO = userResponse.getUser();
     return appointmentService.getAllAppointmentOfDoctor(userDTO.getId());
@@ -50,5 +74,15 @@ public class AppointmentController {
     appointmentDTO.setId(appointmentId);
 
     return appointmentService.changeStatusByDoctor(appointmentDTO, userDTO.getId());
+  }
+
+  @PostMapping(path = "/book_appointment")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PATIENT')")
+  public AppointmentDTO bookAppointmentByPatient(
+      @RequestBody AppointmentRequest appointmentRequest) {
+    UserResponse userResponse = userService.findEmailByToken();
+    UserDTO patient = userResponse.getUser();
+    appointmentRequest.setPatientId(patient.getId());
+    return appointmentService.bookAppointmentByPatient(appointmentRequest);
   }
 }
