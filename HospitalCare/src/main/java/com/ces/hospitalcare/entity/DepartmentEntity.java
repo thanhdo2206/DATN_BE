@@ -18,12 +18,9 @@ public class DepartmentEntity extends BaseEntity {
   @Column
   private String name;
 
-  @Column(columnDefinition = "TEXT")
-  private String description;
-
   @Column
   private String backgroundImage;
 
-  @OneToMany(mappedBy = "departmentEntity")
+  @OneToMany(mappedBy = "department")
   private List<MedicalExaminationEntity> listMedicalExaminationEntity = new ArrayList<>();
 }

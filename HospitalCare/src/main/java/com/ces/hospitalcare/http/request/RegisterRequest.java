@@ -22,10 +22,6 @@ public class RegisterRequest {
 
   private Role role;
 
-  private String phoneNumber;
-
-  private Boolean gender;
-
   @JsonCreator
   public RegisterRequest(String value) {
     this.role = Role.valueOf(value.toUpperCase());

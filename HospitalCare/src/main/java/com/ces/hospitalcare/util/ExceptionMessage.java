@@ -1,7 +1,10 @@
 package com.ces.hospitalcare.util;
 public enum ExceptionMessage {
   USERNAME_PASSWORD_INVALIDATE("Username or Password Incorrect"),
-  EMAIL_ALREADY_EXIST("Email Already Exist");
+  EMAIL_ALREADY_EXIST("Email Already Exist"),
+  RESOURCE_NOT_FOUND("Resource Not Found"),
+  INVALID_REFRESH_TOKEN("Invalid Refresh Token"),
+  INVALID_ACCESS_TOKEN("Invalid Access Token");
 
   private String message;
 
@@ -13,4 +16,3 @@ public enum ExceptionMessage {
     return message;
   }
 }
-

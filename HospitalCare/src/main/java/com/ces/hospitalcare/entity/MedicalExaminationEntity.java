@@ -44,7 +44,7 @@ public class MedicalExaminationEntity extends BaseEntity {
 
   @ManyToOne
   @JoinColumn(name = "departmentId")
-  private DepartmentEntity departmentEntity;
+  private DepartmentEntity department;
 
   @ManyToMany
   @JoinTable(

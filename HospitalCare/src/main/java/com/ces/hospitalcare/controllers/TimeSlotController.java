@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v1/time_slots")
+@RequestMapping(path = "/api/v1")
 public class TimeSlotController {
   @Autowired
   private ITimeSlotService timeSlotService;
@@ -28,56 +28,56 @@ public class TimeSlotController {
   @Autowired
   private IUserService userService;
 
-  @GetMapping(value = "/guest/examination")
+  @GetMapping(value = "/guest/time_slots/examination")
   public List<TimeSlotResponse> getAllTimeSlotByExaminationId(
       @RequestParam("examinationId") Long medicalExaminationId) {
 
     return timeSlotService.getAllTimeSlotByExaminationId(medicalExaminationId);
   }
 
-  @GetMapping(value = "/guest/{id}")
+  @GetMapping(value = "/guest/time_slots/{id}")
   public TimeSlotResponse getDetailTimeSlot(
       @PathVariable("id") Long timeSlotId) {
     return timeSlotService.getDetailTimeSlot(timeSlotId);
   }
 
-  @GetMapping(value = "/doctor")
+  @GetMapping(value = "/time_slots/doctor")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DOCTOR')")
   public List<TimeSlotResponse> getAllTimeSlotOfDoctor() {
-    UserResponse userResponse = userService.findEmailByToken();
+    UserResponse userResponse = userService.getCurrentUser();
     UserDTO doctor = userResponse.getUser();
 
     return timeSlotService.getAllTimeSlotsOfCurrentWeek(doctor.getId());
   }
 
-  @PostMapping(value = "")
+  @PostMapping(value = "/time_slots")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DOCTOR')")
   public List<TimeSlotResponse> addAllTimeSlotOfDoctor(
       @RequestBody List<TimeSlotRequest> listTimeSlotRequest) {
-    UserResponse userResponse = userService.findEmailByToken();
+    UserResponse userResponse = userService.getCurrentUser();
     UserDTO doctor = userResponse.getUser();
 
     return timeSlotService.addAllTimeSlotsOfDoctor(listTimeSlotRequest, doctor.getId());
   }
 
-  @PatchMapping(path = "/{id}")
+  @PatchMapping(path = "/time_slots/{id}")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DOCTOR')")
   public TimeSlotDTO updateTimeSlotByDoctor(
       @PathVariable(value = "id") Long timeSlotId,
       @RequestBody TimeSlotDTO timeSlotDTO) {
-    UserResponse userResponse = userService.findEmailByToken();
+    UserResponse userResponse = userService.getCurrentUser();
     UserDTO doctor = userResponse.getUser();
     timeSlotDTO.setId(timeSlotId);
 
     return timeSlotService.updateTimeSlotByDoctor(timeSlotDTO, doctor.getId());
   }
 
-  @DeleteMapping(path = "/{id}")
+  @DeleteMapping(path = "/time_slots/{id}")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DOCTOR')")
   public String deleteTimeSlotByDoctor(
       @PathVariable(value = "id") Long timeSlotId
   ) {
-    UserResponse userResponse = userService.findEmailByToken();
+    UserResponse userResponse = userService.getCurrentUser();
     UserDTO doctor = userResponse.getUser();
 
     return timeSlotService.deleteTimeSlotByDoctor(timeSlotId);

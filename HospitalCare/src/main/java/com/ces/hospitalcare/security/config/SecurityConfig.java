@@ -2,8 +2,10 @@ package com.ces.hospitalcare.security.config;
 import com.ces.hospitalcare.http.exception.LoginUserException;
 import com.ces.hospitalcare.repository.UserRepository;
 import com.ces.hospitalcare.util.ExceptionMessage;
+import com.ces.hospitalcare.util.PepperedBCryptPasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -13,7 +15,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
@@ -21,6 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig {
   @Autowired
   private UserRepository userRepository;
+
+  @Value("${password.pepper}")
+  private String pepper;
 
   @Bean
   public UserDetailsService userDetailsService() {
@@ -50,6 +54,6 @@ public class SecurityConfig {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
+    return new PepperedBCryptPasswordEncoder(pepper);
   }
 }

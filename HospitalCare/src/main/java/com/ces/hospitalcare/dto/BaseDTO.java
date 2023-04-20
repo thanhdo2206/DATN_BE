@@ -10,9 +10,9 @@ import lombok.Setter;
 public abstract class BaseDTO {
   private Long id;
 
-  private Long createdBy;
+  private String createdBy;
 
-  private Long modifiedBy;
+  private String modifiedBy;
 
   private Date createdDate;
 

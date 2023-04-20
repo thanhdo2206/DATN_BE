@@ -2,6 +2,8 @@ package com.ces.hospitalcare.entity;
 import com.ces.hospitalcare.util.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -11,19 +13,15 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@Getter
-@Setter
-@NoArgsConstructor
 @Entity
 @Builder
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Users")
 public class UserEntity extends BaseEntity implements UserDetails {
@@ -52,13 +50,11 @@ public class UserEntity extends BaseEntity implements UserDetails {
   private Boolean gender;
 
   @Column
+  @Enumerated(EnumType.STRING)
   private Role role;
 
   @OneToMany(mappedBy = "patient")
   private List<AppointmentEntity> listAppointment = new ArrayList<>();
-
-  @OneToMany(mappedBy = "doctor")
-  private List<AppointmentEntity> listAppointmentDoctor = new ArrayList<>();
 
   @OneToOne(mappedBy = "doctor")
   private MedicalExaminationEntity medicalExaminationEntity;

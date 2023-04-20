@@ -52,15 +52,15 @@ public class MedicalExaminationServiceImpl implements IMedicalExaminationService
   @Override
   public MedicalExaminationResponse getDetailMedicalExamination(Long id) {
 
-    MedicalExaminationEntity medicalExaminationEntity = medicalExaminationRepository.getById(
+    MedicalExaminationEntity medicalExaminationEntity = medicalExaminationRepository.getReferenceById(
         id);
     MedicalExaminationDTO dto = mapper.map(medicalExaminationEntity, MedicalExaminationDTO.class);
 
-    List<TimeSlotResponse> listTimeSlotDTO =
+    List<TimeSlotResponse> listTimeSlot =
         timeSlotService.getAllTimeSlotByExaminationId(medicalExaminationEntity.getId());
 
     return MedicalExaminationResponse.builder()
-        .medicalExamination(dto).listTimeSlot(listTimeSlotDTO)
+        .medicalExamination(dto).listTimeSlot(listTimeSlot)
         .build();
   }
 

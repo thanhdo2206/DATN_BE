@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v1/medical_examinations/guest")
+@RequestMapping(path = "/api/v1/guest/medical_examinations")
 public class MedicalExaminationController {
   @Autowired
   private IMedicalExaminationService medicalExaminationService;

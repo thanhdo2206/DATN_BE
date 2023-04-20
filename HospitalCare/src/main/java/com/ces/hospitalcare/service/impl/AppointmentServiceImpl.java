@@ -1,9 +1,11 @@
 package com.ces.hospitalcare.service.impl;
+import com.ces.hospitalcare.builder.AppointmentBuilder;
 import com.ces.hospitalcare.dto.AppointmentDTO;
 import com.ces.hospitalcare.entity.AppointmentEntity;
 import com.ces.hospitalcare.entity.TimeSlotEntity;
 import com.ces.hospitalcare.entity.UserEntity;
 import com.ces.hospitalcare.http.request.AppointmentRequest;
+import com.ces.hospitalcare.http.response.AppointmentResponse;
 import com.ces.hospitalcare.repository.AppointmentRepository;
 import com.ces.hospitalcare.repository.TimeSlotRepository;
 import com.ces.hospitalcare.repository.UserRepository;
@@ -13,21 +15,43 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AppointmentServiceImpl implements IAppointmentService {
   @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
   private AppointmentRepository appointmentRepository;
 
   @Autowired
-  private UserRepository userRepository;
+  private AppointmentBuilder appointmentBuilder;
 
   @Autowired
   private TimeSlotRepository timeSlotRepository;
 
   @Autowired
   private ModelMapper mapper;
+
+  public List<AppointmentResponse> getListAppointmentOfPatient() {
+    String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+    UserEntity user = userRepository.findByEmail(userEmail).orElseThrow();
+
+    List<AppointmentEntity> listAppointmentEntity = appointmentRepository.getAllByPatientId(
+        user.getId());
+
+    List<AppointmentResponse> listAppointmentResponse = new ArrayList<>();
+
+    for (AppointmentEntity entity : listAppointmentEntity) {
+      AppointmentResponse appointmentResponse = appointmentBuilder.appointmentResponseBuilder(
+          entity);
+      listAppointmentResponse.add(appointmentResponse);
+    }
+
+    return listAppointmentResponse;
+  }
 
   public List<AppointmentDTO> createAppointmentDTO(
       List<AppointmentEntity> listAppointmentEntity) {

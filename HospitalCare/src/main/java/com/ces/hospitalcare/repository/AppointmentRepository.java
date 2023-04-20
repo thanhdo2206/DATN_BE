@@ -5,10 +5,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface AppointmentRepository extends JpaRepository<AppointmentEntity, Long> {
+  List<AppointmentEntity> getAllByPatientId(Long patientId);
+
   @Query(value = "SELECT appointments.* FROM appointments\n"
       + "inner join time_slots\n"
       + "on time_slots.id = appointments.time_slot_id\n"
