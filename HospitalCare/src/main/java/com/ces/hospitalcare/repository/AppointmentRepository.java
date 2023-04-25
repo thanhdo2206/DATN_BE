@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<AppointmentEntity, Long> {
-    List<AppointmentEntity> getAllByPatientId(Long patientId);
+    List<AppointmentEntity> getAllByPatientIdOrderByModifiedDateDesc(Long patientId);
 
     @Query(value = "SELECT appointments.* FROM appointments\n"
             + "inner join time_slots\n"

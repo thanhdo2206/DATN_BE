@@ -41,7 +41,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity user = userRepository.findByEmail(userEmail).orElseThrow();
 
-        List<AppointmentEntity> listAppointmentEntity = appointmentRepository.getAllByPatientId(
+        List<AppointmentEntity> listAppointmentEntity = appointmentRepository.getAllByPatientIdOrderByModifiedDateDesc(
                 user.getId());
 
         List<AppointmentResponse> listAppointmentResponse = new ArrayList<>();
