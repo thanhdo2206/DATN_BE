@@ -1,4 +1,5 @@
 package com.ces.hospitalcare.service.impl;
+
 import com.ces.hospitalcare.builder.AppointmentBuilder;
 import com.ces.hospitalcare.dto.AppointmentDTO;
 import com.ces.hospitalcare.entity.AppointmentEntity;
@@ -10,112 +11,107 @@ import com.ces.hospitalcare.repository.AppointmentRepository;
 import com.ces.hospitalcare.repository.TimeSlotRepository;
 import com.ces.hospitalcare.repository.UserRepository;
 import com.ces.hospitalcare.service.IAppointmentService;
-import java.util.ArrayList;
-import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class AppointmentServiceImpl implements IAppointmentService {
-  @Autowired
-  private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-  @Autowired
-  private AppointmentRepository appointmentRepository;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
-  @Autowired
-  private AppointmentBuilder appointmentBuilder;
+    @Autowired
+    private AppointmentBuilder appointmentBuilder;
 
-  @Autowired
-  private TimeSlotRepository timeSlotRepository;
+    @Autowired
+    private TimeSlotRepository timeSlotRepository;
 
-  @Autowired
-  private ModelMapper mapper;
+    @Autowired
+    private ModelMapper mapper;
 
-  public List<AppointmentResponse> getListAppointmentOfPatient() {
-    String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-    UserEntity user = userRepository.findByEmail(userEmail).orElseThrow();
+    public List<AppointmentResponse> getListAppointmentOfPatient() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity user = userRepository.findByEmail(userEmail).orElseThrow();
 
-    List<AppointmentEntity> listAppointmentEntity = appointmentRepository.getAllByPatientId(
-        user.getId());
+        List<AppointmentEntity> listAppointmentEntity = appointmentRepository.getAllByPatientId(
+                user.getId());
 
-    List<AppointmentResponse> listAppointmentResponse = new ArrayList<>();
+        List<AppointmentResponse> listAppointmentResponse = new ArrayList<>();
 
-    for (AppointmentEntity entity : listAppointmentEntity) {
-      AppointmentResponse appointmentResponse = appointmentBuilder.appointmentResponseBuilder(
-          entity);
-      listAppointmentResponse.add(appointmentResponse);
+        for (AppointmentEntity entity : listAppointmentEntity) {
+            AppointmentResponse appointmentResponse = appointmentBuilder.appointmentResponseBuilder(
+                    entity);
+            listAppointmentResponse.add(appointmentResponse);
+        }
+
+        return listAppointmentResponse;
     }
 
-    return listAppointmentResponse;
-  }
+    public List<AppointmentDTO> createAppointmentDTO(
+            List<AppointmentEntity> listAppointmentEntity) {
+        List<AppointmentDTO> listAppointmentDTO = new ArrayList<>();
 
-  public List<AppointmentDTO> createAppointmentDTO(
-      List<AppointmentEntity> listAppointmentEntity) {
-    List<AppointmentDTO> listAppointmentDTO = new ArrayList<>();
+        for (AppointmentEntity entity : listAppointmentEntity) {
 
-    for (AppointmentEntity entity : listAppointmentEntity) {
+            AppointmentDTO dto = mapper.map(entity, AppointmentDTO.class);
 
-      AppointmentDTO dto = mapper.map(entity, AppointmentDTO.class);
+            listAppointmentDTO.add(dto);
+        }
 
-      listAppointmentDTO.add(dto);
+        return listAppointmentDTO;
     }
 
-    return listAppointmentDTO;
-  }
+    @Override
+    public int countByStatusAndDoctorId(int status, Long doctorId) {
+        return appointmentRepository.countByStatusAndDoctorId(status, doctorId);
+    }
 
-  @Override
-  public int countByStatusAndDoctorId(int status, Long doctorId) {
-    return appointmentRepository.countByStatusAndDoctorId(status, doctorId);
-  }
+    @Override
+    public List<AppointmentDTO> getAllAppointmentOfDoctorPageableByStatusAndDoctorId(
+            int appointmentStatus, Long doctorId, Pageable pageable) {
+        List<AppointmentEntity> listAppointmentEntity = appointmentRepository.findAllByStatusAndDoctorIdOrderByModifiedDateDesc(
+                appointmentStatus, doctorId, pageable);
 
-  @Override
-  public List<AppointmentDTO> getAllAppointmentOfDoctorPageableByStatusAndDoctorId(
-      int appointmentStatus, Long doctorId, Pageable pageable) {
-    List<AppointmentEntity> listAppointmentEntity = appointmentRepository.findAllByStatusAndDoctorId(
-        appointmentStatus, doctorId, pageable);
+        return createAppointmentDTO(listAppointmentEntity);
+    }
 
-    return createAppointmentDTO(listAppointmentEntity);
-  }
 
-  @Override
-  public List<AppointmentDTO> getAllAppointmentOfDoctor(Long doctorId) {
-    List<AppointmentEntity> listAppointmentEntity = appointmentRepository.getAllAppointmentOfDoctorCurrentWeek(
-        doctorId);
-    return createAppointmentDTO(listAppointmentEntity);
-  }
+    @Override
+    public List<AppointmentDTO> getAllByDoctorIdAndPatientId(Long doctorId, Long patientId) {
 
-  @Override
-  public List<AppointmentDTO> getAllByDoctorIdAndPatientId(Long doctorId, Long patientId) {
+        return createAppointmentDTO(
+                appointmentRepository.getAllByDoctorIdAndPatientIdOrderByModifiedDateDesc(doctorId, patientId));
+    }
 
-    return createAppointmentDTO(
-        appointmentRepository.getAllByDoctorIdAndPatientId(doctorId, patientId));
-  }
+    @Override
+    public AppointmentDTO changeStatusByDoctor(AppointmentDTO appointmentChangeStatusDTO,
+                                               Long doctorId) {
+        AppointmentEntity appointmentEntityOld = appointmentRepository.getByIdAndDoctorId(
+                appointmentChangeStatusDTO.getId(), doctorId);
+        appointmentEntityOld.setStatus(appointmentChangeStatusDTO.getStatus());
+        appointmentRepository.save(appointmentEntityOld);
+        return mapper.map(appointmentEntityOld, AppointmentDTO.class);
+    }
 
-  @Override
-  public AppointmentDTO changeStatusByDoctor(AppointmentDTO appointmentChangeStatusDTO,
-      Long doctorId) {
-    AppointmentEntity appointmentEntityOld = appointmentRepository.getByIdAndDoctorId(
-        appointmentChangeStatusDTO.getId(), doctorId);
-    appointmentEntityOld.setStatus(appointmentChangeStatusDTO.getStatus());
-    appointmentRepository.save(appointmentEntityOld);
-    return mapper.map(appointmentEntityOld, AppointmentDTO.class);
-  }
+    @Override
+    public AppointmentDTO bookAppointmentByPatient(AppointmentRequest appointmentRequest) {
+        UserEntity patient = userRepository.getReferenceById(appointmentRequest.getPatientId());
+        UserEntity doctor = userRepository.getReferenceById(appointmentRequest.getDoctorId());
+        TimeSlotEntity timeSlotEntity = timeSlotRepository.getReferenceById(
+                appointmentRequest.getTimeSlotId());
 
-  @Override
-  public AppointmentDTO bookAppointmentByPatient(AppointmentRequest appointmentRequest) {
-    UserEntity patient = userRepository.getReferenceById(appointmentRequest.getPatientId());
-    UserEntity doctor = userRepository.getReferenceById(appointmentRequest.getDoctorId());
-    TimeSlotEntity timeSlotEntity = timeSlotRepository.getReferenceById(
-        appointmentRequest.getTimeSlotId());
+        AppointmentEntity appointmentEntity = appointmentRepository.save(
+                AppointmentEntity.builder().patient(patient)
+                        .doctor(doctor).timeSlot(timeSlotEntity).build());
 
-    AppointmentEntity appointmentEntity = appointmentRepository.save(
-        AppointmentEntity.builder().patient(patient)
-            .doctor(doctor).timeSlot(timeSlotEntity).build());
-
-    return mapper.map(appointmentEntity, AppointmentDTO.class);
-  }
+        return mapper.map(appointmentEntity, AppointmentDTO.class);
+    }
 }
