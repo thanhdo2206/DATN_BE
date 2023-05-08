@@ -10,14 +10,18 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "MedicalExaminations")
 public class MedicalExaminationEntity extends BaseEntity {
   @Column
@@ -35,8 +39,15 @@ public class MedicalExaminationEntity extends BaseEntity {
   @Column
   private String image;
 
+  @Column
+  @Builder.Default
+  private Integer statusArchive = 0;
+
   @OneToMany(mappedBy = "medicalExamination")
   private List<TimeSlotEntity> timeSlots = new ArrayList<>();
+
+  @OneToMany(mappedBy = "medicalExamination")
+  private List<FeedbackEntity> feedBacks = new ArrayList<>();
 
   @OneToOne
   @JoinColumn(name = "doctorId")

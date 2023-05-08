@@ -4,6 +4,7 @@ import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
 import com.ces.hospitalcare.http.response.UserResponse;
 import com.ces.hospitalcare.service.IUserService;
 import java.io.IOException;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +27,28 @@ public class UserController {
   private IUserService userService;
 
   @GetMapping("")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PATIENT', 'ROLE_DOCTOR')")
   public ResponseEntity<UserResponse> getCurrentUser() {
     UserResponse userResponse = userService.getCurrentUser();
     return ResponseEntity.status(HttpStatus.OK).body(userResponse);
   }
 
+  @GetMapping("/patient")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public List<UserDTO> getAllPatient() {
+
+    return userService.getAllPatient();
+  }
+
+  @GetMapping("/{id}")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public UserDTO getDetailUser(@PathVariable("id") Long userId) {
+
+    return userService.getDetailUser(userId);
+  }
+
   @PostMapping("/{userId}/profile-picture")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PATIENT', 'ROLE_DOCTOR')")
   public ResponseEntity<UserDTO> updateProfilePicture(
       @PathVariable Long userId,
       @RequestParam("profilePicture") MultipartFile multipartFile) throws IOException {
@@ -40,6 +57,7 @@ public class UserController {
   }
 
   @PutMapping("/{userId}")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PATIENT', 'ROLE_DOCTOR')")
   public ResponseEntity<UserDTO> updateUserProfile(
       @PathVariable Long userId,
       @RequestBody UpdateUserProfileRequest updateUserProfileRequest) throws IOException {

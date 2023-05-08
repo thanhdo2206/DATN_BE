@@ -1,33 +1,37 @@
 package com.ces.hospitalcare.controllers;
+import com.ces.hospitalcare.dto.MedicalExaminationDTO;
 import com.ces.hospitalcare.http.response.MedicalExaminationResponse;
 import com.ces.hospitalcare.service.IMedicalExaminationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path = "/api/v1/guest/medical_examinations")
+@RequestMapping(path = "/api/v1")
 public class MedicalExaminationController {
   @Autowired
   private IMedicalExaminationService medicalExaminationService;
 
-  @GetMapping(path = "")
+  @GetMapping(path = "/guest/medical_examinations")
   public List<MedicalExaminationResponse> getAllMedicalExamination() {
 
     return medicalExaminationService.getAllMedicalExamination();
   }
 
-  @GetMapping(value = "/{id}")
+  @GetMapping(value = "/guest/medical_examinations/{id}")
   public MedicalExaminationResponse getDetailMedicalExamination(
       @PathVariable("id") Long medicalExaminationId) {
     return medicalExaminationService.getDetailMedicalExamination(medicalExaminationId);
   }
 
-  @GetMapping(value = "/filter")
+  @GetMapping(value = "/guest/medical_examinations/filter")
   public List<MedicalExaminationResponse> filterMedicalExaminationByCategoryAndPrice(
       @RequestParam(value = "category[]") String[] categories,
       @RequestParam(value = "minPrice", required = false) Long minPrice,
@@ -35,5 +39,16 @@ public class MedicalExaminationController {
 
     return medicalExaminationService.filterMedicalExaminationByCategoryAndPrice(
         minPrice, maxPrice, categories);
+  }
+
+  @PatchMapping(path = "/medical_examinations/{id}")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public MedicalExaminationDTO archiveMedicalExamination(
+      @PathVariable(value = "id") Long medicalExaminationId,
+      @RequestBody MedicalExaminationDTO medicalExaminationDTO) {
+
+    medicalExaminationDTO.setId(medicalExaminationId);
+
+    return medicalExaminationService.archiveMedicalExamination(medicalExaminationDTO);
   }
 }

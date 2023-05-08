@@ -4,6 +4,7 @@ import com.ces.hospitalcare.entity.MedicalExaminationEntity;
 import com.ces.hospitalcare.http.response.MedicalExaminationResponse;
 import com.ces.hospitalcare.http.response.TimeSlotResponse;
 import com.ces.hospitalcare.repository.MedicalExaminationRepository;
+import com.ces.hospitalcare.service.IAppointmentService;
 import com.ces.hospitalcare.service.IMedicalExaminationService;
 import com.ces.hospitalcare.service.ITimeSlotService;
 import java.util.ArrayList;
@@ -19,6 +20,9 @@ public class MedicalExaminationServiceImpl implements IMedicalExaminationService
 
   @Autowired
   private ITimeSlotService timeSlotService;
+
+  @Autowired
+  private IAppointmentService appointmentService;
 
   @Autowired
   private ModelMapper mapper;
@@ -44,7 +48,8 @@ public class MedicalExaminationServiceImpl implements IMedicalExaminationService
 
   @Override
   public List<MedicalExaminationResponse> getAllMedicalExamination() {
-    List<MedicalExaminationEntity> listMedicalExaminationEntity = medicalExaminationRepository.findAll();
+    List<MedicalExaminationEntity> listMedicalExaminationEntity = medicalExaminationRepository.getAllByStatusArchive(
+        0);
 
     return createListMedicalExaminationResponse(listMedicalExaminationEntity);
   }
@@ -92,5 +97,17 @@ public class MedicalExaminationServiceImpl implements IMedicalExaminationService
         filterMedicalExaminationEntity(minPrice, maxPrice, categories);
 
     return createListMedicalExaminationResponse(listMedicalExaminationEntity);
+  }
+
+  @Override
+  public MedicalExaminationDTO archiveMedicalExamination(
+      MedicalExaminationDTO medicalExaminationDTO) {
+    MedicalExaminationEntity medicalExaminationEntityOld = medicalExaminationRepository.getReferenceById(
+        medicalExaminationDTO.getId());
+    medicalExaminationEntityOld.setStatusArchive(medicalExaminationDTO.getStatusArchive());
+    medicalExaminationRepository.save(medicalExaminationEntityOld);
+    appointmentService.cancelAppointmentMedicalArchive(
+        medicalExaminationEntityOld.getDoctor().getId());
+    return mapper.map(medicalExaminationEntityOld, MedicalExaminationDTO.class);
   }
 }

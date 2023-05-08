@@ -17,5 +17,7 @@ public class MedicalExaminationDTO extends BaseDTO {
 
   private String image;
 
+  private Integer statusArchive;
+
   private DepartmentDTO department;
 }

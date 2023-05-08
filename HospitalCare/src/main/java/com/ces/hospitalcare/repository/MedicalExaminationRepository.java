@@ -45,4 +45,6 @@ public interface MedicalExaminationRepository extends
       @Param("categories") String[] categories);
 
   MedicalExaminationEntity getByDoctorId(Long doctorId);
+
+  List<MedicalExaminationEntity> getAllByStatusArchive(Integer statusArchive);
 }

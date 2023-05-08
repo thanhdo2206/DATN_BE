@@ -16,6 +16,8 @@ public class UserDTO extends BaseDTO {
 
   private String profilePicture;
 
+  private Integer age;
+
   private String email;
 
   private String address;

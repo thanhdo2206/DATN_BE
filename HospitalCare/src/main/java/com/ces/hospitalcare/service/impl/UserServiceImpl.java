@@ -7,9 +7,12 @@ import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
 import com.ces.hospitalcare.http.response.UserResponse;
 import com.ces.hospitalcare.repository.UserRepository;
 import com.ces.hospitalcare.service.IUserService;
+import com.ces.hospitalcare.util.Role;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -80,5 +83,29 @@ public class UserServiceImpl implements IUserService {
 
     UserDTO userDTO = mapper.map(user, UserDTO.class);
     return userDTO;
+  }
+
+  public List<UserDTO> createListUserDTO(
+      List<UserEntity> listUserEntity) {
+    List<UserDTO> listUserDTO = new ArrayList<>();
+
+    for (UserEntity entity : listUserEntity) {
+      UserDTO dto = mapper.map(entity, UserDTO.class);
+
+      listUserDTO.add(dto);
+    }
+
+    return listUserDTO;
+  }
+
+  @Override
+  public List<UserDTO> getAllPatient() {
+    List<UserEntity> listPatientEntity = userRepository.getAllByRole(Role.PATIENT);
+    return createListUserDTO(listPatientEntity);
+  }
+
+  @Override
+  public UserDTO getDetailUser(Long userId) {
+    return mapper.map(userRepository.getReferenceById(userId), UserDTO.class);
   }
 }

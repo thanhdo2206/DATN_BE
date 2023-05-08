@@ -3,6 +3,7 @@ import com.ces.hospitalcare.dto.UserDTO;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
 import com.ces.hospitalcare.http.response.UserResponse;
 import java.io.IOException;
+import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IUserService {
@@ -12,4 +13,8 @@ public interface IUserService {
 
   UserDTO updateUserProfile(Long userId, UpdateUserProfileRequest updateUserProfileRequest)
       throws IOException;
+
+  List<UserDTO> getAllPatient();
+
+  UserDTO getDetailUser(Long userId);
 }

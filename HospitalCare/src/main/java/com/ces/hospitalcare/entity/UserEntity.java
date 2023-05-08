@@ -50,11 +50,17 @@ public class UserEntity extends BaseEntity implements UserDetails {
   private Boolean gender;
 
   @Column
+  private Integer age;
+
+  @Column
   @Enumerated(EnumType.STRING)
   private Role role;
 
   @OneToMany(mappedBy = "patient")
   private List<AppointmentEntity> listAppointment = new ArrayList<>();
+
+  @OneToMany(mappedBy = "patient")
+  private List<FeedbackEntity> listFeedBack = new ArrayList<>();
 
   @OneToOne(mappedBy = "doctor")
   private MedicalExaminationEntity medicalExaminationEntity;
