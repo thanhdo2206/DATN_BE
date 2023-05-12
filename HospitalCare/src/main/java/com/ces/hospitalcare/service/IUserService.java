@@ -1,6 +1,8 @@
 package com.ces.hospitalcare.service;
 import com.ces.hospitalcare.dto.UserDTO;
+import com.ces.hospitalcare.http.request.DoctorRequest;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
+import com.ces.hospitalcare.http.response.DoctorResponse;
 import com.ces.hospitalcare.http.response.UserResponse;
 import java.io.IOException;
 import java.util.List;
@@ -16,5 +18,11 @@ public interface IUserService {
 
   List<UserDTO> getAllPatient();
 
+  List<DoctorResponse> getAllDoctor();
+
   UserDTO getDetailUser(Long userId);
+
+  DoctorResponse getDetailDoctor(Long doctorId);
+
+  DoctorResponse addDoctor(DoctorRequest doctorRequest);
 }

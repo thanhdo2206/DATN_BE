@@ -1,9 +1,13 @@
 package com.ces.hospitalcare.service.impl;
+import com.ces.hospitalcare.builder.MedicalExaminationBuilder;
 import com.ces.hospitalcare.dto.MedicalExaminationDTO;
 import com.ces.hospitalcare.entity.MedicalExaminationEntity;
+import com.ces.hospitalcare.http.request.MedicalExaminationRequest;
 import com.ces.hospitalcare.http.response.MedicalExaminationResponse;
 import com.ces.hospitalcare.http.response.TimeSlotResponse;
+import com.ces.hospitalcare.repository.DepartmentRepository;
 import com.ces.hospitalcare.repository.MedicalExaminationRepository;
+import com.ces.hospitalcare.repository.UserRepository;
 import com.ces.hospitalcare.service.IAppointmentService;
 import com.ces.hospitalcare.service.IMedicalExaminationService;
 import com.ces.hospitalcare.service.ITimeSlotService;
@@ -25,7 +29,16 @@ public class MedicalExaminationServiceImpl implements IMedicalExaminationService
   private IAppointmentService appointmentService;
 
   @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
+  private DepartmentRepository departmentRepository;
+
+  @Autowired
   private ModelMapper mapper;
+
+  @Autowired
+  private MedicalExaminationBuilder medicalExaminationBuilder;
 
   public List<MedicalExaminationResponse> createListMedicalExaminationResponse(
       List<MedicalExaminationEntity> listMedicalExaminationEntity) {
@@ -97,6 +110,32 @@ public class MedicalExaminationServiceImpl implements IMedicalExaminationService
         filterMedicalExaminationEntity(minPrice, maxPrice, categories);
 
     return createListMedicalExaminationResponse(listMedicalExaminationEntity);
+  }
+
+  @Override
+  public MedicalExaminationDTO addMedicalExamination(
+      MedicalExaminationRequest medicalExaminationRequest) {
+    MedicalExaminationEntity medicalExaminationEntity = mapper.map(medicalExaminationRequest,
+        MedicalExaminationEntity.class);
+    medicalExaminationEntity.setDoctor(
+        userRepository.getReferenceById(medicalExaminationRequest.getDoctorId()));
+    medicalExaminationEntity.setDepartment(
+        departmentRepository.getReferenceById(medicalExaminationRequest.getDepartmentId()));
+    medicalExaminationRepository.save(medicalExaminationEntity);
+
+    return mapper.map(medicalExaminationEntity, MedicalExaminationDTO.class);
+  }
+
+  @Override
+  public MedicalExaminationDTO updateMedicalExamination(
+      MedicalExaminationRequest medicalExaminationRequest, Long medicalId) {
+    MedicalExaminationEntity medicalExaminationEntity = medicalExaminationRepository.getReferenceById(
+        medicalId);
+    medicalExaminationRepository.save(
+        medicalExaminationBuilder.medicalUpdateBuild(medicalExaminationRequest,
+            medicalExaminationEntity));
+
+    return mapper.map(medicalExaminationEntity, MedicalExaminationDTO.class);
   }
 
   @Override

@@ -1,6 +1,8 @@
 package com.ces.hospitalcare.controllers;
 import com.ces.hospitalcare.dto.UserDTO;
+import com.ces.hospitalcare.http.request.DoctorRequest;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
+import com.ces.hospitalcare.http.response.DoctorResponse;
 import com.ces.hospitalcare.http.response.UserResponse;
 import com.ces.hospitalcare.service.IUserService;
 import java.io.IOException;
@@ -21,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/user")
-@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PATIENT', 'ROLE_DOCTOR')")
+//@PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_PATIENT', 'ROLE_DOCTOR')")
 public class UserController {
   @Autowired
   private IUserService userService;
@@ -40,11 +42,32 @@ public class UserController {
     return userService.getAllPatient();
   }
 
-  @GetMapping("/{id}")
+  @GetMapping("/doctor")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-  public UserDTO getDetailUser(@PathVariable("id") Long userId) {
+  public List<DoctorResponse> getAllDoctor() {
+
+    return userService.getAllDoctor();
+  }
+
+  @GetMapping("/patient/{id}")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public UserDTO getDetailPatient(@PathVariable("id") Long userId) {
 
     return userService.getDetailUser(userId);
+  }
+
+  @GetMapping("/doctor/{id}")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public DoctorResponse getDetailDoctor(@PathVariable("id") Long doctorId) {
+
+    return userService.getDetailDoctor(doctorId);
+  }
+
+  @PostMapping("/doctor")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public DoctorResponse addDoctor(@RequestBody DoctorRequest doctorRequest) {
+
+    return userService.addDoctor(doctorRequest);
   }
 
   @PostMapping("/{userId}/profile-picture")
