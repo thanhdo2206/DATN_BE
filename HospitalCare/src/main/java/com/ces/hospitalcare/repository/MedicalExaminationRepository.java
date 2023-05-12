@@ -47,4 +47,6 @@ public interface MedicalExaminationRepository extends
   MedicalExaminationEntity getByDoctorId(Long doctorId);
 
   List<MedicalExaminationEntity> getAllByStatusArchive(Integer statusArchive);
+
+  List<MedicalExaminationEntity> getAllByDepartmentId(Long departmentId);
 }

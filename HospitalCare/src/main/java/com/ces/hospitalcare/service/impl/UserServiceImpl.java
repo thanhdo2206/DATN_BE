@@ -1,11 +1,20 @@
 package com.ces.hospitalcare.service.impl;
 import com.ces.hospitalcare.builder.UserBuilder;
+import com.ces.hospitalcare.dto.MedicalExaminationDTO;
 import com.ces.hospitalcare.dto.UserDTO;
+import com.ces.hospitalcare.entity.MedicalExaminationEntity;
 import com.ces.hospitalcare.entity.UserEntity;
+import com.ces.hospitalcare.http.exception.AlreadyExistException;
 import com.ces.hospitalcare.http.exception.ResourceNotFoundException;
+import com.ces.hospitalcare.http.request.DoctorRequest;
+import com.ces.hospitalcare.http.request.MedicalExaminationRequest;
+import com.ces.hospitalcare.http.request.RegisterRequest;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
+import com.ces.hospitalcare.http.response.DoctorResponse;
 import com.ces.hospitalcare.http.response.UserResponse;
+import com.ces.hospitalcare.repository.MedicalExaminationRepository;
 import com.ces.hospitalcare.repository.UserRepository;
+import com.ces.hospitalcare.service.IMedicalExaminationService;
 import com.ces.hospitalcare.service.IUserService;
 import com.ces.hospitalcare.util.Role;
 import com.cloudinary.Cloudinary;
@@ -20,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +38,15 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserServiceImpl implements IUserService {
   @Autowired
   UserRepository userRepository;
+
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+
+  @Autowired
+  private MedicalExaminationRepository medicalExaminationRepository;
+
+  @Autowired
+  private IMedicalExaminationService medicalExaminationService;
 
   @Autowired
   private ModelMapper mapper;
@@ -105,7 +124,56 @@ public class UserServiceImpl implements IUserService {
   }
 
   @Override
+  public List<DoctorResponse> getAllDoctor() {
+    List<DoctorResponse> listDoctorResponse = new ArrayList<>();
+    List<UserEntity> listDoctorEntity = userRepository.getAllByRole(Role.DOCTOR);
+    for (UserEntity doctorEntity : listDoctorEntity) {
+      MedicalExaminationEntity medicalExaminationEntity = medicalExaminationRepository.getByDoctorId(
+          doctorEntity.getId());
+      MedicalExaminationDTO medicalExaminationDTO = mapper.map(medicalExaminationEntity,
+          MedicalExaminationDTO.class);
+      UserDTO doctorDTO = mapper.map(doctorEntity, UserDTO.class);
+      DoctorResponse doctorResponse = DoctorResponse.builder().doctor(doctorDTO)
+          .medicalExamination(medicalExaminationDTO).build();
+      listDoctorResponse.add((doctorResponse));
+    }
+    return listDoctorResponse;
+  }
+
+  @Override
   public UserDTO getDetailUser(Long userId) {
     return mapper.map(userRepository.getReferenceById(userId), UserDTO.class);
+  }
+
+  @Override
+  public DoctorResponse getDetailDoctor(Long doctorId) {
+    UserEntity doctorEntity = userRepository.getReferenceById(doctorId);
+    MedicalExaminationEntity medicalExaminationEntity = medicalExaminationRepository.getByDoctorId(
+        doctorId);
+    MedicalExaminationDTO medicalExaminationDTO = mapper.map(medicalExaminationEntity,
+        MedicalExaminationDTO.class);
+    UserDTO doctorDTO = mapper.map(doctorEntity, UserDTO.class);
+    DoctorResponse doctorResponse = DoctorResponse.builder().doctor(doctorDTO)
+        .medicalExamination(medicalExaminationDTO).build();
+    return doctorResponse;
+  }
+
+  @Override
+  public DoctorResponse addDoctor(DoctorRequest doctorRequest) {
+    RegisterRequest doctorRegister = doctorRequest.getDoctor();
+    MedicalExaminationRequest medicalExamination = doctorRequest.getMedicalExamination();
+    if (userRepository.findByEmail(doctorRegister.getEmail()).isEmpty() == false) {
+      throw new AlreadyExistException("Email already exists");
+    }
+
+    UserEntity doctor = userBuilder.userEntityBuild(doctorRegister,
+        passwordEncoder.encode(doctorRegister.getPassword()));
+    userRepository.save(doctor);
+    medicalExamination.setDoctorId(doctor.getId());
+    MedicalExaminationDTO medicalExaminationDTO = medicalExaminationService.addMedicalExamination(
+        medicalExamination);
+
+    return DoctorResponse.builder().doctor(mapper.map(doctor, UserDTO.class))
+        .medicalExamination(medicalExaminationDTO).build();
   }
 }
