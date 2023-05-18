@@ -2,6 +2,7 @@ package com.ces.hospitalcare.service.impl;
 import com.ces.hospitalcare.dto.DepartmentDTO;
 import com.ces.hospitalcare.entity.DepartmentEntity;
 import com.ces.hospitalcare.entity.MedicalExaminationEntity;
+import com.ces.hospitalcare.http.exception.DeleteDepartmentException;
 import com.ces.hospitalcare.repository.DepartmentRepository;
 import com.ces.hospitalcare.repository.MedicalExaminationRepository;
 import com.ces.hospitalcare.service.IDepartmentService;
@@ -66,7 +67,7 @@ public class DepartmentServiceImpl implements IDepartmentService {
         departmentId);
 
     if (medicalExaminationEntityList.size() != 0) {
-      return "You can't delete";
+      throw new DeleteDepartmentException("You can't delete");
     }
 
     departmentRepository.delete(departmentRepository.getReferenceById(departmentId));

@@ -25,4 +25,10 @@ public class CustomExceptionHandler {
   public ErrorResponse handleResourceNotFoundException(Exception ex) {
     return new ErrorResponse(ex.getMessage(), new Date(), HttpStatus.NOT_FOUND.value());
   }
+
+  @ExceptionHandler(DeleteDepartmentException.class)
+  @ResponseStatus(HttpStatus.CONFLICT)
+  public ErrorResponse handleDeleteDepartmentException(Exception ex) {
+    return new ErrorResponse(ex.getMessage(), new Date(), HttpStatus.CONFLICT.value());
+  }
 }
