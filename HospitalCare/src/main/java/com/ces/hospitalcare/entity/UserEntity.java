@@ -68,6 +68,12 @@ public class UserEntity extends BaseEntity implements UserDetails {
   @OneToMany(mappedBy = "doctor")
   private List<TimeSlotEntity> listTimeSlotEntity = new ArrayList<>();
 
+  @OneToMany(mappedBy = "receiver")
+  private List<ConversationEntity> listConversationReceiver = new ArrayList<>();
+
+  @OneToMany(mappedBy = "sender")
+  private List<ConversationEntity> listConversationSender = new ArrayList<>();
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
