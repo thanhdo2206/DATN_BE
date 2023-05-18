@@ -18,11 +18,13 @@ public interface IUserService {
 
   List<UserDTO> getAllPatient();
 
-  List<DoctorResponse> getAllDoctor();
+  List<DoctorResponse> getAllDoctor(int statusArchive);
 
   UserDTO getDetailUser(Long userId);
 
   DoctorResponse getDetailDoctor(Long doctorId);
 
   DoctorResponse addDoctor(DoctorRequest doctorRequest);
+
+  String checkEmailDoctor(UserDTO doctorDTO);
 }

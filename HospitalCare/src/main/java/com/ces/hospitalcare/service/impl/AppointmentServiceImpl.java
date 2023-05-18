@@ -36,6 +36,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
   private ModelMapper mapper;
 
   @Override
+  public int countAppointment() {
+    return (int) appointmentRepository.count();
+  }
+
+  @Override
   public String cancelAppointmentMedicalArchive(Long doctorId) {
     List<AppointmentEntity> listAppointmentEntity = appointmentRepository.getAppointmentPendingOfMedicalArchive(
         doctorId);
@@ -44,7 +49,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
       appointmentDTO.setStatus(2);
       changeStatusByDoctor(appointmentDTO, doctorId);
     }
-    return "cancel successfull";
+    return "cancel successfully";
   }
 
   public List<AppointmentResponse> getListAppointmentOfPatient() {
@@ -91,6 +96,21 @@ public class AppointmentServiceImpl implements IAppointmentService {
         appointmentStatus, doctorId, pageable);
 
     return createAppointmentDTO(listAppointmentEntity);
+  }
+
+  @Override
+  public List<AppointmentDTO> getAllAppointmentPageable(Pageable pageable) {
+
+    List<AppointmentEntity> listAppointmentEntity = appointmentRepository.findAll(pageable)
+        .getContent();
+
+    return createAppointmentDTO(listAppointmentEntity);
+  }
+
+  @Override
+  public AppointmentDTO getDetailAppointment(Long appointmentId) {
+    AppointmentEntity appointmentEntity = appointmentRepository.getReferenceById(appointmentId);
+    return mapper.map(appointmentEntity, AppointmentDTO.class);
   }
 
   @Override

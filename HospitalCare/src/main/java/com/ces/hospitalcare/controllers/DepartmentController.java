@@ -3,6 +3,8 @@ import com.ces.hospitalcare.dto.DepartmentDTO;
 import com.ces.hospitalcare.service.IDepartmentService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +43,9 @@ public class DepartmentController {
 
   @DeleteMapping(value = "/{id}")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-  public String deleteDepartment(@PathVariable("id") Long departmentId) {
-    return departmentService.deleteDepartment(departmentId);
+  public ResponseEntity<String> deleteDepartment(@PathVariable("id") Long departmentId) {
+//    return departmentService.deleteDepartment(departmentId);
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(departmentService.deleteDepartment(departmentId));
   }
 }

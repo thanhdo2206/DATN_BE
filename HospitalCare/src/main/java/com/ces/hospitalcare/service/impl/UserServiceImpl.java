@@ -124,7 +124,7 @@ public class UserServiceImpl implements IUserService {
   }
 
   @Override
-  public List<DoctorResponse> getAllDoctor() {
+  public List<DoctorResponse> getAllDoctor(int statusArchive) {
     List<DoctorResponse> listDoctorResponse = new ArrayList<>();
     List<UserEntity> listDoctorEntity = userRepository.getAllByRole(Role.DOCTOR);
     for (UserEntity doctorEntity : listDoctorEntity) {
@@ -133,9 +133,11 @@ public class UserServiceImpl implements IUserService {
       MedicalExaminationDTO medicalExaminationDTO = mapper.map(medicalExaminationEntity,
           MedicalExaminationDTO.class);
       UserDTO doctorDTO = mapper.map(doctorEntity, UserDTO.class);
-      DoctorResponse doctorResponse = DoctorResponse.builder().doctor(doctorDTO)
-          .medicalExamination(medicalExaminationDTO).build();
-      listDoctorResponse.add((doctorResponse));
+      if (medicalExaminationEntity.getStatusArchive() == statusArchive) {
+        DoctorResponse doctorResponse = DoctorResponse.builder().doctor(doctorDTO)
+            .medicalExamination(medicalExaminationDTO).build();
+        listDoctorResponse.add((doctorResponse));
+      }
     }
     return listDoctorResponse;
   }
@@ -175,5 +177,13 @@ public class UserServiceImpl implements IUserService {
 
     return DoctorResponse.builder().doctor(mapper.map(doctor, UserDTO.class))
         .medicalExamination(medicalExaminationDTO).build();
+  }
+
+  @Override
+  public String checkEmailDoctor(UserDTO doctorDTO) {
+    if (userRepository.findByEmail(doctorDTO.getEmail()).isEmpty() == false) {
+      throw new AlreadyExistException("Email already exists");
+    }
+    return "Valid email";
   }
 }
