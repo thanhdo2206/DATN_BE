@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 
 public interface IAppointmentService {
+  int countAppointment();
+
   String cancelAppointmentMedicalArchive(Long doctorId);
 
   List<AppointmentResponse> getListAppointmentOfPatient();
@@ -14,6 +16,10 @@ public interface IAppointmentService {
 
   List<AppointmentDTO> getAllAppointmentOfDoctorPageableByStatusAndDoctorId(int appointmentStatus,
       Long doctorId, Pageable pageable);
+
+  List<AppointmentDTO> getAllAppointmentPageable(Pageable pageable);
+
+  AppointmentDTO getDetailAppointment(Long appointmentId);
 
   List<AppointmentDTO> getAllByDoctorIdAndPatientId(Long doctorId, Long patientId);
 

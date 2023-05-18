@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/appointments/")
+@RequestMapping("/api/v1/appointments")
 public class AppointmentController {
   @Autowired
   private IAppointmentService appointmentService;
@@ -32,7 +32,7 @@ public class AppointmentController {
   @Autowired
   private IUserService userService;
 
-  @GetMapping("patient")
+  @GetMapping("/patient")
   @PreAuthorize("hasAuthority('ROLE_PATIENT')")
   public ResponseEntity<List<AppointmentResponse>> getListAppointmentOfPatient() {
     List<AppointmentResponse> listAppointmentOfPatient = appointmentService.getListAppointmentOfPatient();
@@ -65,6 +65,27 @@ public class AppointmentController {
     UserResponse userResponse = userService.getCurrentUser();
     UserDTO userDTO = userResponse.getUser();
     return appointmentService.getAllByDoctorIdAndPatientId(userDTO.getId(), patientId);
+  }
+
+  @GetMapping(path = "/pageable")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public AppointmentPageableResponse getAllAppointmentPageable(
+      @RequestParam("pageIndex") int pageIndex, @RequestParam("limit") int limit) {
+
+    Pageable pageable = PageRequest.of(pageIndex - 1, limit);
+    int totalPage = (int) Math.ceil((double) (appointmentService.countAppointment()) / limit);
+    List<AppointmentDTO> listAppointmentDTO = appointmentService.getAllAppointmentPageable(
+        pageable);
+    return AppointmentPageableResponse.builder().pageIndex(pageIndex).totalPage(totalPage)
+        .listAppointmentResult(listAppointmentDTO).build();
+  }
+
+  @GetMapping(path = "/{id}")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public AppointmentDTO getDetailAppointment(
+      @PathVariable(value = "id") Long appointmentId) {
+
+    return appointmentService.getDetailAppointment(appointmentId);
   }
 
   @PatchMapping(path = "/change_status_appointment/{id}")

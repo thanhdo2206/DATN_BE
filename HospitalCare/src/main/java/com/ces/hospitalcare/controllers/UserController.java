@@ -44,9 +44,10 @@ public class UserController {
 
   @GetMapping("/doctor")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-  public List<DoctorResponse> getAllDoctor() {
+  public List<DoctorResponse> getAllDoctorArchive(
+      @RequestParam(value = "statusArchive") int statusArchive) {
 
-    return userService.getAllDoctor();
+    return userService.getAllDoctor(statusArchive);
   }
 
   @GetMapping("/patient/{id}")
@@ -68,6 +69,13 @@ public class UserController {
   public DoctorResponse addDoctor(@RequestBody DoctorRequest doctorRequest) {
 
     return userService.addDoctor(doctorRequest);
+  }
+
+  @PostMapping("/doctor/check-email")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public String checkEmailDoctor(@RequestBody UserDTO doctorDTO) {
+
+    return userService.checkEmailDoctor(doctorDTO);
   }
 
   @PostMapping("/{userId}/profile-picture")

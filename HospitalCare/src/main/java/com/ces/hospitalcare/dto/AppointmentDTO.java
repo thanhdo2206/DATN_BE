@@ -12,4 +12,6 @@ public class AppointmentDTO extends BaseDTO {
   private UserDTO patient;
 
   private TimeSlotDTO timeSlot;
+
+  private UserDTO doctor;
 }
