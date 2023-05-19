@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 public class DoctorUpdateRequest {
   private Long doctorId;
 
+  private Integer age;
+
   private String firstName;
 
   private String lastName;
