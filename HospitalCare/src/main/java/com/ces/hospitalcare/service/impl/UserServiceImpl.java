@@ -7,11 +7,13 @@ import com.ces.hospitalcare.entity.UserEntity;
 import com.ces.hospitalcare.http.exception.AlreadyExistException;
 import com.ces.hospitalcare.http.exception.ResourceNotFoundException;
 import com.ces.hospitalcare.http.request.DoctorRequest;
+import com.ces.hospitalcare.http.request.DoctorUpdateRequest;
 import com.ces.hospitalcare.http.request.MedicalExaminationRequest;
 import com.ces.hospitalcare.http.request.RegisterRequest;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
 import com.ces.hospitalcare.http.response.DoctorResponse;
 import com.ces.hospitalcare.http.response.UserResponse;
+import com.ces.hospitalcare.repository.DepartmentRepository;
 import com.ces.hospitalcare.repository.MedicalExaminationRepository;
 import com.ces.hospitalcare.repository.UserRepository;
 import com.ces.hospitalcare.service.IMedicalExaminationService;
@@ -56,6 +58,9 @@ public class UserServiceImpl implements IUserService {
 
   @Autowired
   private UserBuilder userBuilder;
+
+  @Autowired
+  private DepartmentRepository departmentRepository;
 
   @Override
   public UserResponse getCurrentUser() {
@@ -185,5 +190,23 @@ public class UserServiceImpl implements IUserService {
       throw new AlreadyExistException("Email already exists");
     }
     return "Valid email";
+  }
+
+  @Override
+  public UserDTO updateProfileDoctor(DoctorUpdateRequest doctorUpdateRequest) {
+    Long doctorId = doctorUpdateRequest.getDoctorId();
+    UserEntity doctorEntityOld = userRepository.findByIdAndRole(doctorId, Role.DOCTOR)
+        .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
+
+    UserEntity updatedDoctor = userBuilder.doctorEntityUpdateBuild(doctorUpdateRequest,
+        doctorEntityOld);
+    userRepository.save(updatedDoctor);
+
+    MedicalExaminationEntity medicalExaminationEntity = medicalExaminationRepository.getByDoctorId(
+        doctorId);
+    medicalExaminationEntity.setDepartment(
+        departmentRepository.getReferenceById(doctorUpdateRequest.getDepartmentId()));
+    medicalExaminationRepository.save(medicalExaminationEntity);
+    return mapper.map(updatedDoctor, UserDTO.class);
   }
 }

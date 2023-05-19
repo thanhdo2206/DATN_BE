@@ -1,6 +1,7 @@
 package com.ces.hospitalcare.service;
 import com.ces.hospitalcare.dto.UserDTO;
 import com.ces.hospitalcare.http.request.DoctorRequest;
+import com.ces.hospitalcare.http.request.DoctorUpdateRequest;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
 import com.ces.hospitalcare.http.response.DoctorResponse;
 import com.ces.hospitalcare.http.response.UserResponse;
@@ -27,4 +28,6 @@ public interface IUserService {
   DoctorResponse addDoctor(DoctorRequest doctorRequest);
 
   String checkEmailDoctor(UserDTO doctorDTO);
+
+  UserDTO updateProfileDoctor(DoctorUpdateRequest doctorUpdateRequest);
 }
