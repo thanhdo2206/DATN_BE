@@ -44,6 +44,9 @@ public class UserBuilder {
         .password(password)
         .email(request.getEmail())
         .age(request.getAge())
+        .address(request.getAddress())
+        .gender(request.getGender())
+        .phoneNumber(request.getPhoneNumber())
         .role(request.getRole())
         .build();
   }

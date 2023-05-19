@@ -22,6 +22,12 @@ public class DoctorRegisterRequest {
 
   private Integer age;
 
+  private String address;
+
+  private String phoneNumber;
+
+  private Boolean gender;
+
   private Role role;
 
   @JsonCreator
