@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DoctorRequest {
-  private RegisterRequest doctor;
+  private DoctorRegisterRequest doctor;
 
   private MedicalExaminationRequest medicalExamination;
 }

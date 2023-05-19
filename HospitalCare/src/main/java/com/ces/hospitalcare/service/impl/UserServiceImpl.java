@@ -6,10 +6,10 @@ import com.ces.hospitalcare.entity.MedicalExaminationEntity;
 import com.ces.hospitalcare.entity.UserEntity;
 import com.ces.hospitalcare.http.exception.AlreadyExistException;
 import com.ces.hospitalcare.http.exception.ResourceNotFoundException;
+import com.ces.hospitalcare.http.request.DoctorRegisterRequest;
 import com.ces.hospitalcare.http.request.DoctorRequest;
 import com.ces.hospitalcare.http.request.DoctorUpdateRequest;
 import com.ces.hospitalcare.http.request.MedicalExaminationRequest;
-import com.ces.hospitalcare.http.request.RegisterRequest;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
 import com.ces.hospitalcare.http.response.DoctorResponse;
 import com.ces.hospitalcare.http.response.UserResponse;
@@ -167,13 +167,13 @@ public class UserServiceImpl implements IUserService {
 
   @Override
   public DoctorResponse addDoctor(DoctorRequest doctorRequest) {
-    RegisterRequest doctorRegister = doctorRequest.getDoctor();
+    DoctorRegisterRequest doctorRegister = doctorRequest.getDoctor();
     MedicalExaminationRequest medicalExamination = doctorRequest.getMedicalExamination();
     if (userRepository.findByEmail(doctorRegister.getEmail()).isEmpty() == false) {
       throw new AlreadyExistException("Email already exists");
     }
 
-    UserEntity doctor = userBuilder.userEntityBuild(doctorRegister,
+    UserEntity doctor = userBuilder.doctorEntityBuild(doctorRegister,
         passwordEncoder.encode(doctorRegister.getPassword()));
     userRepository.save(doctor);
     medicalExamination.setDoctorId(doctor.getId());

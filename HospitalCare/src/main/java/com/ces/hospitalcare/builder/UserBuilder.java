@@ -1,5 +1,6 @@
 package com.ces.hospitalcare.builder;
 import com.ces.hospitalcare.entity.UserEntity;
+import com.ces.hospitalcare.http.request.DoctorRegisterRequest;
 import com.ces.hospitalcare.http.request.DoctorUpdateRequest;
 import com.ces.hospitalcare.http.request.RegisterRequest;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
@@ -34,5 +35,16 @@ public class UserBuilder {
     userEntity.setAddress(request.getAddress());
     userEntity.setAge(request.getAge());
     return userEntity;
+  }
+
+  public UserEntity doctorEntityBuild(DoctorRegisterRequest request, String password) {
+    return UserEntity.builder()
+        .firstName(request.getFirstName())
+        .lastName(request.getLastName())
+        .password(password)
+        .email(request.getEmail())
+        .age(request.getAge())
+        .role(request.getRole())
+        .build();
   }
 }
