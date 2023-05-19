@@ -1,6 +1,7 @@
 package com.ces.hospitalcare.controllers;
 import com.ces.hospitalcare.dto.UserDTO;
 import com.ces.hospitalcare.http.request.DoctorRequest;
+import com.ces.hospitalcare.http.request.DoctorUpdateRequest;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
 import com.ces.hospitalcare.http.response.DoctorResponse;
 import com.ces.hospitalcare.http.response.UserResponse;
@@ -76,6 +77,15 @@ public class UserController {
   public String checkEmailDoctor(@RequestBody UserDTO doctorDTO) {
 
     return userService.checkEmailDoctor(doctorDTO);
+  }
+
+  @PutMapping("/doctor/update-profile/{doctorId}")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public UserDTO updateDoctorProfile(
+      @PathVariable Long doctorId,
+      @RequestBody DoctorUpdateRequest doctorUpdateRequest) {
+    doctorUpdateRequest.setDoctorId(doctorId);
+    return userService.updateProfileDoctor(doctorUpdateRequest);
   }
 
   @PostMapping("/{userId}/profile-picture")

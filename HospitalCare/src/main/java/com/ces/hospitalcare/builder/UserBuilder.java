@@ -1,5 +1,6 @@
 package com.ces.hospitalcare.builder;
 import com.ces.hospitalcare.entity.UserEntity;
+import com.ces.hospitalcare.http.request.DoctorUpdateRequest;
 import com.ces.hospitalcare.http.request.RegisterRequest;
 import com.ces.hospitalcare.http.request.UpdateUserProfileRequest;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,15 @@ public class UserBuilder {
   }
 
   public UserEntity userEntityUpdateBuild(UpdateUserProfileRequest request, UserEntity userEntity) {
+    userEntity.setFirstName(request.getFirstName());
+    userEntity.setLastName(request.getLastName());
+    userEntity.setGender(request.getGender());
+    userEntity.setPhoneNumber(request.getPhoneNumber());
+    userEntity.setAddress(request.getAddress());
+    return userEntity;
+  }
+
+  public UserEntity doctorEntityUpdateBuild(DoctorUpdateRequest request, UserEntity userEntity) {
     userEntity.setFirstName(request.getFirstName());
     userEntity.setLastName(request.getLastName());
     userEntity.setGender(request.getGender());

@@ -16,8 +16,7 @@ public class MedicalExaminationBuilder {
     medicalOld.setTitle(medicalUpdate.getTitle());
     medicalOld.setDescription(medicalUpdate.getDescription());
     medicalOld.setShortDescription(medicalUpdate.getShortDescription());
-    medicalOld.setDepartment(
-        departmentRepository.getReferenceById(medicalUpdate.getDepartmentId()));
+
     return medicalOld;
   }
 }
