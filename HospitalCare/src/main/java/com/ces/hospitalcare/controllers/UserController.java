@@ -81,7 +81,7 @@ public class UserController {
 
   @PutMapping("/doctor/update-profile/{doctorId}")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-  public UserDTO updateDoctorProfile(
+  public DoctorResponse updateDoctorProfile(
       @PathVariable Long doctorId,
       @RequestBody DoctorUpdateRequest doctorUpdateRequest) {
     doctorUpdateRequest.setDoctorId(doctorId);

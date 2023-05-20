@@ -193,7 +193,7 @@ public class UserServiceImpl implements IUserService {
   }
 
   @Override
-  public UserDTO updateProfileDoctor(DoctorUpdateRequest doctorUpdateRequest) {
+  public DoctorResponse updateProfileDoctor(DoctorUpdateRequest doctorUpdateRequest) {
     Long doctorId = doctorUpdateRequest.getDoctorId();
     UserEntity doctorEntityOld = userRepository.findByIdAndRole(doctorId, Role.DOCTOR)
         .orElseThrow(() -> new ResourceNotFoundException("Doctor not found with id: " + doctorId));
@@ -207,6 +207,9 @@ public class UserServiceImpl implements IUserService {
     medicalExaminationEntity.setDepartment(
         departmentRepository.getReferenceById(doctorUpdateRequest.getDepartmentId()));
     medicalExaminationRepository.save(medicalExaminationEntity);
-    return mapper.map(updatedDoctor, UserDTO.class);
+
+    return DoctorResponse.builder().doctor(mapper.map(updatedDoctor, UserDTO.class))
+        .medicalExamination(mapper.map(medicalExaminationEntity, MedicalExaminationDTO.class))
+        .build();
   }
 }

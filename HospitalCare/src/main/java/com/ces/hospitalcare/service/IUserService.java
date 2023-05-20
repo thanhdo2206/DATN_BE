@@ -29,5 +29,5 @@ public interface IUserService {
 
   String checkEmailDoctor(UserDTO doctorDTO);
 
-  UserDTO updateProfileDoctor(DoctorUpdateRequest doctorUpdateRequest);
+  DoctorResponse updateProfileDoctor(DoctorUpdateRequest doctorUpdateRequest);
 }
