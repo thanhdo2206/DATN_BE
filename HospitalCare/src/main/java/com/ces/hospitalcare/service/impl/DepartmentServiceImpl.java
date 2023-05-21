@@ -6,11 +6,16 @@ import com.ces.hospitalcare.http.exception.DeleteDepartmentException;
 import com.ces.hospitalcare.repository.DepartmentRepository;
 import com.ces.hospitalcare.repository.MedicalExaminationRepository;
 import com.ces.hospitalcare.service.IDepartmentService;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class DepartmentServiceImpl implements IDepartmentService {
@@ -22,6 +27,10 @@ public class DepartmentServiceImpl implements IDepartmentService {
 
   @Autowired
   private MedicalExaminationRepository medicalExaminationRepository;
+
+  @Autowired
+  private Cloudinary cloudinary;
+
 
   public List<DepartmentDTO> createListDepartmentDTO(List<DepartmentEntity> departmentEntityList) {
 
@@ -43,7 +52,17 @@ public class DepartmentServiceImpl implements IDepartmentService {
   }
 
   @Override
-  public DepartmentDTO addDepartment(DepartmentDTO departmentDTO) {
+  public DepartmentDTO addDepartment(DepartmentDTO departmentDTO, MultipartFile multipartFile)
+      throws IOException {
+
+    Map response = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.asMap(
+        "public_id",
+        "department" + "/" + multipartFile.getName()
+    ));
+
+    String departmentUrl = (String) response.get("secure_url");
+
+    departmentDTO.setBackgroundImage(departmentUrl);
     DepartmentEntity departmentEntity = mapper.map(departmentDTO, DepartmentEntity.class);
     departmentRepository.save(departmentEntity);
 
@@ -51,9 +70,20 @@ public class DepartmentServiceImpl implements IDepartmentService {
   }
 
   @Override
-  public DepartmentDTO editDepartment(DepartmentDTO departmentDTO) {
+  public DepartmentDTO editDepartment(DepartmentDTO departmentDTO, MultipartFile multipartFile)
+      throws IOException {
     DepartmentEntity departmentEntity = departmentRepository.getReferenceById(
         departmentDTO.getId());
+
+    if(multipartFile != null ) {
+      Map response = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.asMap(
+          "public_id",
+          "department" + "/" + departmentDTO.getId() + "/" + multipartFile.getName()
+      ));
+
+      String departmentUrl = (String) response.get("secure_url");
+      departmentEntity.setBackgroundImage(departmentUrl);
+    }
 
     departmentEntity.setName(departmentDTO.getName());
     departmentRepository.save(departmentEntity);
