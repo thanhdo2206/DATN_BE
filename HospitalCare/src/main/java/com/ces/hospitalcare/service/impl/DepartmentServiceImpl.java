@@ -92,7 +92,7 @@ public class DepartmentServiceImpl implements IDepartmentService {
   }
 
   @Override
-  public String deleteDepartment(Long departmentId) {
+  public List<DepartmentDTO> deleteDepartment(Long departmentId) {
     List<MedicalExaminationEntity> medicalExaminationEntityList = medicalExaminationRepository.getAllByDepartmentId(
         departmentId);
 
@@ -101,6 +101,6 @@ public class DepartmentServiceImpl implements IDepartmentService {
     }
 
     departmentRepository.delete(departmentRepository.getReferenceById(departmentId));
-    return "Delete successfully";
+    return createListDepartmentDTO(departmentRepository.findAll());
   }
 }

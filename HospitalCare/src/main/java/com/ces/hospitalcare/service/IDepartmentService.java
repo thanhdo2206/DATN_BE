@@ -13,5 +13,5 @@ public interface IDepartmentService {
   DepartmentDTO editDepartment(DepartmentDTO departmentDTO, MultipartFile multipartFile)
       throws IOException;
 
-  String deleteDepartment(Long departmentId);
+  List<DepartmentDTO> deleteDepartment(Long departmentId);
 }
