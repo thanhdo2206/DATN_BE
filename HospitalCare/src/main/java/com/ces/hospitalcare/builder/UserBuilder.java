@@ -37,7 +37,7 @@ public class UserBuilder {
     return userEntity;
   }
 
-  public UserEntity doctorEntityBuild(DoctorRegisterRequest request, String password) {
+  public UserEntity doctorEntityBuild(DoctorRegisterRequest request, String password, String profilePicture) {
     return UserEntity.builder()
         .firstName(request.getFirstName())
         .lastName(request.getLastName())
@@ -48,6 +48,7 @@ public class UserBuilder {
         .gender(request.getGender())
         .phoneNumber(request.getPhoneNumber())
         .role(request.getRole())
+        .profilePicture(profilePicture)
         .build();
   }
 }

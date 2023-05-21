@@ -25,7 +25,7 @@ public interface IUserService {
 
   DoctorResponse getDetailDoctor(Long doctorId);
 
-  DoctorResponse addDoctor(DoctorRequest doctorRequest);
+  DoctorResponse addDoctor(DoctorRequest doctorRequest, MultipartFile multipartFile) throws IOException;
 
   String checkEmailDoctor(UserDTO doctorDTO);
 

@@ -166,15 +166,23 @@ public class UserServiceImpl implements IUserService {
   }
 
   @Override
-  public DoctorResponse addDoctor(DoctorRequest doctorRequest) {
+  public DoctorResponse addDoctor(DoctorRequest doctorRequest, MultipartFile multipartFile)
+      throws IOException {
     DoctorRegisterRequest doctorRegister = doctorRequest.getDoctor();
     MedicalExaminationRequest medicalExamination = doctorRequest.getMedicalExamination();
     if (userRepository.findByEmail(doctorRegister.getEmail()).isEmpty() == false) {
       throw new AlreadyExistException("Email already exists");
     }
 
+    Map response = cloudinary.uploader().upload(multipartFile.getBytes(), ObjectUtils.asMap(
+        "public_id",
+        "profilePicture" + "/" + multipartFile.getName()
+    ));
+
+    String profilePictureUrl = (String) response.get("secure_url");
+
     UserEntity doctor = userBuilder.doctorEntityBuild(doctorRegister,
-        passwordEncoder.encode(doctorRegister.getPassword()));
+        passwordEncoder.encode(doctorRegister.getPassword()), profilePictureUrl);
     userRepository.save(doctor);
     medicalExamination.setDoctorId(doctor.getId());
     MedicalExaminationDTO medicalExaminationDTO = medicalExaminationService.addMedicalExamination(

@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,18 +67,17 @@ public class UserController {
     return userService.getDetailDoctor(doctorId);
   }
 
-  @PostMapping("/doctor")
+  @RequestMapping(value = "/doctor", method = RequestMethod.POST, consumes = {"multipart/form-data"})
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-  public DoctorResponse addDoctor(@RequestBody DoctorRequest doctorRequest) {
-
-    return userService.addDoctor(doctorRequest);
+  public DoctorResponse addDoctor(@RequestPart("data") DoctorRequest doctorRequest, @RequestPart("file") MultipartFile multipartFile) throws IOException {
+    return userService.addDoctor(doctorRequest, multipartFile);
   }
 
   @PostMapping("/doctor/check-email")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
-  public String checkEmailDoctor(@RequestBody UserDTO doctorDTO) {
-
-    return userService.checkEmailDoctor(doctorDTO);
+  public ResponseEntity<String> checkEmailDoctor(@RequestBody UserDTO doctorDTO) {
+    String response = userService.checkEmailDoctor(doctorDTO);
+    return ResponseEntity.status(HttpStatus.OK).body(response);
   }
 
   @PutMapping("/doctor/update-profile/{doctorId}")
