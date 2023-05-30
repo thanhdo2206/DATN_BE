@@ -10,6 +10,8 @@ import com.ces.hospitalcare.repository.AppointmentRepository;
 import com.ces.hospitalcare.repository.TimeSlotRepository;
 import com.ces.hospitalcare.repository.UserRepository;
 import com.ces.hospitalcare.service.IAppointmentService;
+import com.ces.hospitalcare.service.IEmailService;
+import jakarta.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
 import org.modelmapper.ModelMapper;
@@ -34,6 +36,9 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
   @Autowired
   private ModelMapper mapper;
+
+  @Autowired
+  private IEmailService emailService;
 
   @Override
   public int countAppointment() {
@@ -127,6 +132,29 @@ public class AppointmentServiceImpl implements IAppointmentService {
     AppointmentEntity appointmentEntityOld = appointmentRepository.getByIdAndDoctorId(
         appointmentChangeStatusDTO.getId(), doctorId);
     appointmentEntityOld.setStatus(appointmentChangeStatusDTO.getStatus());
+
+    AppointmentResponse appointmentResponse = appointmentBuilder.appointmentResponseBuilder(appointmentEntityOld);
+    String doctorName = appointmentResponse.getFirstNameDoctor() + " "
+        + appointmentResponse.getLastNameDoctor();
+    String patientName = appointmentResponse.getFirstNamePatient() + " "
+        + appointmentResponse.getLastNamePatient();
+
+    String messageBody = "";
+    String messageSubject = emailService.messageSubject(doctorName, "Appointment Confirmation Notification with ");
+    if(appointmentChangeStatusDTO.getStatus() == 1) {
+      messageBody = emailService.messageDoctorAcceptAppointmentBody(doctorName, patientName, appointmentResponse.getStartTime());
+    }
+
+    if(appointmentChangeStatusDTO.getStatus() == 2) {
+      messageBody = emailService.messageDoctorCancelAppointmentBody(doctorName, patientName, appointmentResponse.getStartTime());
+    }
+
+    try {
+      emailService.sendEmail("buianhtuan2111@gmail.com", messageSubject, messageBody);
+    } catch (MessagingException e) {
+      throw new RuntimeException(e);
+    }
+
     appointmentRepository.save(appointmentEntityOld);
     return mapper.map(appointmentEntityOld, AppointmentDTO.class);
   }
