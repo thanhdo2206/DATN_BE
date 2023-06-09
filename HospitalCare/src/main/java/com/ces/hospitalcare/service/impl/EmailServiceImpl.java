@@ -1,7 +1,9 @@
 package com.ces.hospitalcare.service.impl;
+import com.ces.hospitalcare.entity.UserEntity;
 import com.ces.hospitalcare.service.IEmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -96,6 +98,35 @@ public class EmailServiceImpl implements IEmailService {
   public String messageSubject(String doctorName, String titleSubject) {
     String message = ""+ titleSubject + doctorName;
     return message;
+  }
+
+  @Override
+  public void sendVerificationEmail(UserEntity user, String siteURL, String verifyToken)
+      throws MessagingException, UnsupportedEncodingException {
+    String toAddress = user.getEmail();
+    System.out.println(toAddress);
+    String fromAddress = "hospitalcaretech@gmail.com";
+    String subject = "Please verify your registration";
+    String content = "Dear [[name]],<br>"
+        + "Please click the link below to verify your registration:<br>"
+        + "<h3><a href=\"[[URL]]\" target=\"_self\">VERIFY</a></h3>"
+        + "Thank you,<br>"
+        + "Your company name.";
+    MimeMessage message = mailSender.createMimeMessage();
+    MimeMessageHelper helper = new MimeMessageHelper(message);
+
+    content = content.replace("[[name]]", user.getFirstName()) + " " + user.getLastName();
+    String verifyURL = siteURL + "/verify?token=" + verifyToken;
+
+    content = content.replace("[[URL]]", verifyURL);
+
+    helper.setText(content, true);
+
+    helper.setFrom(fromAddress);
+    helper.setTo(toAddress);
+    helper.setSubject(subject);
+
+    mailSender.send(message);
   }
 
   private List<String> dateAndHourFormat(Date appointmentDate) {
