@@ -5,12 +5,14 @@ import com.ces.hospitalcare.entity.AppointmentEntity;
 import com.ces.hospitalcare.entity.TimeSlotEntity;
 import com.ces.hospitalcare.entity.UserEntity;
 import com.ces.hospitalcare.http.request.AppointmentRequest;
+import com.ces.hospitalcare.http.request.NotificationRequest;
 import com.ces.hospitalcare.http.response.AppointmentResponse;
 import com.ces.hospitalcare.repository.AppointmentRepository;
 import com.ces.hospitalcare.repository.TimeSlotRepository;
 import com.ces.hospitalcare.repository.UserRepository;
 import com.ces.hospitalcare.service.IAppointmentService;
 import com.ces.hospitalcare.service.IEmailService;
+import com.ces.hospitalcare.service.INotificationService;
 import jakarta.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,9 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
   @Autowired
   private IEmailService emailService;
+
+  @Autowired
+  private INotificationService notificationService;
 
   @Override
   public int countAppointment() {
@@ -133,20 +138,24 @@ public class AppointmentServiceImpl implements IAppointmentService {
         appointmentChangeStatusDTO.getId(), doctorId);
     appointmentEntityOld.setStatus(appointmentChangeStatusDTO.getStatus());
 
-    AppointmentResponse appointmentResponse = appointmentBuilder.appointmentResponseBuilder(appointmentEntityOld);
+    AppointmentResponse appointmentResponse = appointmentBuilder.appointmentResponseBuilder(
+        appointmentEntityOld);
     String doctorName = appointmentResponse.getFirstNameDoctor() + " "
         + appointmentResponse.getLastNameDoctor();
     String patientName = appointmentResponse.getFirstNamePatient() + " "
         + appointmentResponse.getLastNamePatient();
 
     String messageBody = "";
-    String messageSubject = emailService.messageSubject(doctorName, "Appointment Confirmation Notification with ");
-    if(appointmentChangeStatusDTO.getStatus() == 1) {
-      messageBody = emailService.messageDoctorAcceptAppointmentBody(doctorName, patientName, appointmentResponse.getStartTime());
+    String messageSubject = emailService.messageSubject(doctorName,
+        "Appointment Confirmation Notification with ");
+    if (appointmentChangeStatusDTO.getStatus() == 1) {
+      messageBody = emailService.messageDoctorAcceptAppointmentBody(doctorName, patientName,
+          appointmentResponse.getStartTime());
     }
 
-    if(appointmentChangeStatusDTO.getStatus() == 2) {
-      messageBody = emailService.messageDoctorCancelAppointmentBody(doctorName, patientName, appointmentResponse.getStartTime());
+    if (appointmentChangeStatusDTO.getStatus() == 2) {
+      messageBody = emailService.messageDoctorCancelAppointmentBody(doctorName, patientName,
+          appointmentResponse.getStartTime());
     }
 
     try {
@@ -156,6 +165,10 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     appointmentRepository.save(appointmentEntityOld);
+    //    add notification cho bệnh nhân
+    notificationService.addNotification(
+        NotificationRequest.builder().appointmentId(appointmentEntityOld.getId()).userId(
+            appointmentEntityOld.getPatient().getId()).build());
     return mapper.map(appointmentEntityOld, AppointmentDTO.class);
   }
 
@@ -169,6 +182,11 @@ public class AppointmentServiceImpl implements IAppointmentService {
     AppointmentEntity appointmentEntity = appointmentRepository.save(
         AppointmentEntity.builder().patient(patient)
             .doctor(doctor).timeSlot(timeSlotEntity).build());
+
+    //   add notification cho bác sĩ
+    notificationService.addNotification(
+        NotificationRequest.builder().appointmentId(appointmentEntity.getId()).userId(
+            doctor.getId()).build());
 
     return mapper.map(appointmentEntity, AppointmentDTO.class);
   }
