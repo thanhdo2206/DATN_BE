@@ -159,7 +159,7 @@ public class AppointmentServiceImpl implements IAppointmentService {
     }
 
     try {
-      emailService.sendEmail("buianhtuan2111@gmail.com", messageSubject, messageBody);
+      emailService.sendEmail(appointmentResponse.getEmailPatient(), messageSubject, messageBody);
     } catch (MessagingException e) {
       throw new RuntimeException(e);
     }
