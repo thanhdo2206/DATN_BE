@@ -116,7 +116,7 @@ public class EmailServiceImpl implements IEmailService {
     MimeMessageHelper helper = new MimeMessageHelper(message);
 
     content = content.replace("[[name]]", user.getFirstName()) + " " + user.getLastName();
-    String verifyURL = siteURL + "/verify?token=" + verifyToken;
+    String verifyURL = siteURL + "/verify/" + verifyToken;
 
     content = content.replace("[[URL]]", verifyURL);
 
