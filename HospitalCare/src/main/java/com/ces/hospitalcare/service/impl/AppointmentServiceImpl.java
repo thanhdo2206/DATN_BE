@@ -2,12 +2,15 @@ package com.ces.hospitalcare.service.impl;
 import com.ces.hospitalcare.builder.AppointmentBuilder;
 import com.ces.hospitalcare.dto.AppointmentDTO;
 import com.ces.hospitalcare.entity.AppointmentEntity;
+import com.ces.hospitalcare.entity.MedicalExaminationEntity;
 import com.ces.hospitalcare.entity.TimeSlotEntity;
 import com.ces.hospitalcare.entity.UserEntity;
 import com.ces.hospitalcare.http.request.AppointmentRequest;
 import com.ces.hospitalcare.http.request.NotificationRequest;
 import com.ces.hospitalcare.http.response.AppointmentResponse;
+import com.ces.hospitalcare.http.response.CheckResponse;
 import com.ces.hospitalcare.repository.AppointmentRepository;
+import com.ces.hospitalcare.repository.MedicalExaminationRepository;
 import com.ces.hospitalcare.repository.TimeSlotRepository;
 import com.ces.hospitalcare.repository.UserRepository;
 import com.ces.hospitalcare.service.IAppointmentService;
@@ -35,6 +38,9 @@ public class AppointmentServiceImpl implements IAppointmentService {
 
   @Autowired
   private TimeSlotRepository timeSlotRepository;
+
+  @Autowired
+  private MedicalExaminationRepository medicalExaminationRepository;
 
   @Autowired
   private ModelMapper mapper;
@@ -189,5 +195,23 @@ public class AppointmentServiceImpl implements IAppointmentService {
             doctor.getId()).build());
 
     return mapper.map(appointmentEntity, AppointmentDTO.class);
+  }
+
+  @Override
+  public CheckResponse checkAppointmentByPatientAndExamination(Long patientId, Long examinationId) {
+    MedicalExaminationEntity medicalExaminationEntity = medicalExaminationRepository.getReferenceById(
+        examinationId);
+    Long doctorId = medicalExaminationEntity.getDoctor().getId();
+    List<AppointmentEntity> appointmentEntityList = appointmentRepository.getAllByDoctorIdAndPatientIdOrderByModifiedDateDesc(
+        doctorId, patientId);
+
+    if (appointmentEntityList.size() > 0) {
+      return CheckResponse.builder().statusCode(200)
+          .message("The patient has an appointment with the doctor").isBooked(true).build();
+    }
+
+    return CheckResponse.builder().statusCode(404)
+        .message("The patient has never booked an appointment with a doctor").isBooked(false)
+        .build();
   }
 }
