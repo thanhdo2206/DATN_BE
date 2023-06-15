@@ -34,5 +34,4 @@ build/
 .vscode/
 
 ### Resources ###
-src/main/resources/
 ../.idea/
