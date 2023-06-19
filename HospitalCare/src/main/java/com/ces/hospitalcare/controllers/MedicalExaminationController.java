@@ -54,6 +54,14 @@ public class MedicalExaminationController {
     return medicalExaminationService.archiveMedicalExamination(medicalExaminationDTO);
   }
 
+  @PatchMapping(path = "/medical_examinations/unarchive/{id}")
+  @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+  public MedicalExaminationDTO unarchiveMedicalExamination(
+      @PathVariable(value = "id") Long medicalExaminationId) {
+
+    return medicalExaminationService.unarchiveMedicalExamination(medicalExaminationId);
+  }
+
   @PatchMapping(path = "/medical_examinations/{id}")
   @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
   public MedicalExaminationDTO updateMedicalExamination(

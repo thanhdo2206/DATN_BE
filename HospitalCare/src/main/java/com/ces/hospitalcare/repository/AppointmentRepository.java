@@ -30,6 +30,8 @@ public interface AppointmentRepository extends JpaRepository<AppointmentEntity, 
       + "WHERE appointments.doctor_id = :doctorId and status = 0;", nativeQuery = true)
   List<AppointmentEntity> getAppointmentPendingOfMedicalArchive(@Param("doctorId") Long doctorId);
 
+  List<AppointmentEntity> getAllByDoctorIdAndStatus(Long doctorId,Integer status);
+
   @Query(value = "select ts.start_time as startTime, u.email, \n"
       + "u.first_name as firstNamePatient, u.last_name as lastNamePatient, \n"
       + "d.first_name as firstNameDoctor, d.last_name as lastNameDoctor \n"

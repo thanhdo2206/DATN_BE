@@ -14,6 +14,8 @@ public interface IMedicalExaminationService {
 
   MedicalExaminationDTO archiveMedicalExamination(MedicalExaminationDTO medicalExaminationDTO);
 
+  MedicalExaminationDTO unarchiveMedicalExamination(Long medicalId);
+
   MedicalExaminationDTO addMedicalExamination(MedicalExaminationRequest medicalExaminationRequest);
 
   MedicalExaminationDTO updateMedicalExamination(

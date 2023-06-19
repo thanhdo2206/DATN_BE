@@ -1,10 +1,13 @@
 package com.ces.hospitalcare.service.impl;
 import com.ces.hospitalcare.builder.MedicalExaminationBuilder;
+import com.ces.hospitalcare.dto.AppointmentDTO;
 import com.ces.hospitalcare.dto.MedicalExaminationDTO;
+import com.ces.hospitalcare.entity.AppointmentEntity;
 import com.ces.hospitalcare.entity.MedicalExaminationEntity;
 import com.ces.hospitalcare.http.request.MedicalExaminationRequest;
 import com.ces.hospitalcare.http.response.MedicalExaminationResponse;
 import com.ces.hospitalcare.http.response.TimeSlotResponse;
+import com.ces.hospitalcare.repository.AppointmentRepository;
 import com.ces.hospitalcare.repository.DepartmentRepository;
 import com.ces.hospitalcare.repository.MedicalExaminationRepository;
 import com.ces.hospitalcare.repository.UserRepository;
@@ -12,6 +15,7 @@ import com.ces.hospitalcare.service.IAppointmentService;
 import com.ces.hospitalcare.service.IMedicalExaminationService;
 import com.ces.hospitalcare.service.ITimeSlotService;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,9 @@ public class MedicalExaminationServiceImpl implements IMedicalExaminationService
 
   @Autowired
   private DepartmentRepository departmentRepository;
+
+  @Autowired
+  private AppointmentRepository appointmentRepository;
 
   @Autowired
   private ModelMapper mapper;
@@ -141,12 +148,39 @@ public class MedicalExaminationServiceImpl implements IMedicalExaminationService
   @Override
   public MedicalExaminationDTO archiveMedicalExamination(
       MedicalExaminationDTO medicalExaminationDTO) {
+
+//    thay đổi status archive
     MedicalExaminationEntity medicalExaminationEntityOld = medicalExaminationRepository.getReferenceById(
         medicalExaminationDTO.getId());
     medicalExaminationEntityOld.setStatusArchive(medicalExaminationDTO.getStatusArchive());
     medicalExaminationRepository.save(medicalExaminationEntityOld);
+
+    Long doctorId = medicalExaminationEntityOld.getDoctor().getId();
+    //    cancel các appointment có trạng thái pending
     appointmentService.cancelAppointmentMedicalArchive(
         medicalExaminationEntityOld.getDoctor().getId());
+
+//    cancel các appointment có trạng thái apporve
+//    nhưng các appointment này chưa đến thời gian khám so với ngày hiện tại
+    List<AppointmentEntity> appointmentEntityList = appointmentRepository.getAllByDoctorIdAndStatus(
+        doctorId, 1);
+    Date currentDate = new Date();
+    for (AppointmentEntity entity : appointmentEntityList) {
+      if (currentDate.before(entity.getTimeSlot().getStartTime())) {
+        AppointmentDTO appointmentDTO = mapper.map(entity, AppointmentDTO.class);
+        appointmentDTO.setStatus(2);
+        appointmentService.changeStatusByDoctor(appointmentDTO, doctorId);
+      }
+    }
+    return mapper.map(medicalExaminationEntityOld, MedicalExaminationDTO.class);
+  }
+
+  @Override
+  public MedicalExaminationDTO unarchiveMedicalExamination(Long medicalId) {
+    MedicalExaminationEntity medicalExaminationEntityOld = medicalExaminationRepository.getReferenceById(
+        medicalId);
+    medicalExaminationEntityOld.setStatusArchive(0);
+    medicalExaminationRepository.save(medicalExaminationEntityOld);
     return mapper.map(medicalExaminationEntityOld, MedicalExaminationDTO.class);
   }
 }
