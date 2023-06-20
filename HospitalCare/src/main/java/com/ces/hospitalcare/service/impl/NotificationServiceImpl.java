@@ -60,7 +60,7 @@ public class NotificationServiceImpl implements INotificationService {
 
       notificationResponseList.add(
           NotificationPatientResponse.builder().inforNotification(appointmentResponse)
-              .isRead(entity.getIsRead())
+              .isRead(entity.getIsRead()).createdDate(entity.getCreatedDate())
               .build());
     }
 
